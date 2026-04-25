@@ -1,0 +1,28 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - OPENROUTER_HTTP_REFERER=${OPENROUTER_HTTP_REFERER:-}
+      - OPENROUTER_X_TITLE=${OPENROUTER_X_TITLE:-}
+      - RTAPI_API_KEY=${RTAPI_API_KEY:-rtapi-dev-key-change-me}
+      - RTAPI_JUDGE_MODEL=${RTAPI_JUDGE_MODEL:-anthropic/claude-haiku-4-5}
+      - RTAPI_ATTACKER_MODEL=${RTAPI_ATTACKER_MODEL:-anthropic/claude-sonnet-4-6}
+    volumes:
+      - ./data:/app/data
+    command: uvicorn redteam_api.main:app --host 0.0.0.0 --port 8000
+
+  stub:
+    build: .
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - STUB_PORT=8001
+    command: uvicorn tests.stub_target.server:app --host 0.0.0.0 --port 8001
